@@ -1,0 +1,2 @@
+/home/odroid/robocomp/components/hexapod-robot/testPatas/CMakeFiles/edit_cache.dir
+/home/odroid/robocomp/components/hexapod-robot/testPatas/CMakeFiles/rebuild_cache.dir

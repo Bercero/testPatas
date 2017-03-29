@@ -1,0 +1,12 @@
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+
+Component TestPatas
+{
+	Communications
+	{
+		requires JointMotor;
+	};
+	language python;
+	//gui Qt(QWidget);
+};
+
