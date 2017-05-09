@@ -30,7 +30,7 @@ class SpecificWorker(GenericWorker):
     def __init__(self, proxy_map):
         super(SpecificWorker, self).__init__(proxy_map)
         self.timer.timeout.connect(self.compute)
-        self.Period = 2000
+        self.Period = 5000
         self.timer.start(self.Period)
 
     def setParams(self, params):
@@ -42,6 +42,7 @@ class SpecificWorker(GenericWorker):
             self.l0= float(params['l0'])
             self.l1= float(params['l1'])
             self.l2= float(params['l2'])
+            
                    
         except:
             traceback.print_exc()
@@ -67,7 +68,7 @@ class SpecificWorker(GenericWorker):
         self.mover(goalPosList)
         print "moviendo ..."
         sleep(3)
-    
+        print "calculando ..."
         a0 = self.jointmotor_proxy.getMotorState(self.motors[0]).pos
         a1 = self.jointmotor_proxy.getMotorState(self.motors[1]).pos
         a2 = self.jointmotor_proxy.getMotorState(self.motors[2]).pos
@@ -79,7 +80,6 @@ class SpecificWorker(GenericWorker):
 
         print "diferencia = {0}, {1}, {2}".format(x-x1, y-y1, z-z1)     
         print "......................."
-        sleep(2)
         
     
     def dk(self, a0, a1, a2):
@@ -91,14 +91,16 @@ class SpecificWorker(GenericWorker):
         
         
     def getPosInnerModel(self):
-        z = coord3D()
-        #TODO cuales son los parametros correctos para transform()
+        coords = coord3D()     #inicializado a (0, 0, 0)
+        
         #TODO es necesario hacer el update? con que parametros
         #self.innermodel.updateTransformValues("head_rot_tilt_pose", 0, 0, 0, 1.3, 0, 0)
-        #transform(string base, string item, coord3D coordInItem,out coord3D coordInBase)
-        r = self.innermodelmanager_proxy.transform("arm1motor1T", "arm1TipT", z)
-        s=r[1]
-        return s.x, s.y, s.z
+        
+        #TODO cuales son los parametros correctos para transform()
+        #en c es transform(string base, string item, coord3D coordInItem,out coord3D coordInBase)
+        result = self.innermodelmanager_proxy.transform("arm1motor1T", "arm1TipT", coords)
+        coords = result[1]
+        return coords.x, coords.y, coords.z
     @QtCore.Slot()
     def compute(self):
         # print 'SpecificWorker.compute...'
