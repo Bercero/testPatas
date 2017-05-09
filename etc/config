@@ -2,7 +2,7 @@
 JointMotorProxy = jointmotor:tcp -h localhost -p 20000
 InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
 
-
+InnerModelPath=/home/cerbero/robocomp/files/innermodel/hexapod.xml
 
 # This property is used by the clients to connect to IceStorm.
 #TopicManager.Proxy=IceStorm/TopicManager:default -p 9999

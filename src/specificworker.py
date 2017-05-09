@@ -26,6 +26,12 @@ from random import uniform as rand
 from time import sleep
 from math import *
 
+# If RoboComp was compiled with Python bindings you can use InnerModel in Python
+sys.path.append('/opt/robocomp/lib')
+import librobocomp_qmat
+import librobocomp_osgviewer
+import librobocomp_innermodel
+
 class SpecificWorker(GenericWorker):
     def __init__(self, proxy_map):
         super(SpecificWorker, self).__init__(proxy_map)
@@ -43,7 +49,10 @@ class SpecificWorker(GenericWorker):
             self.l1= float(params['l1'])
             self.l2= float(params['l2'])
             
-                   
+            
+            self.innermodel = librobocomp_innermodel.InnerModel(params["InnerModelPath"])           
+            
+           
         except:
             traceback.print_exc()
             print "Error reading config params"
@@ -73,10 +82,15 @@ class SpecificWorker(GenericWorker):
         a1 = self.jointmotor_proxy.getMotorState(self.motors[1]).pos
         a2 = self.jointmotor_proxy.getMotorState(self.motors[2]).pos
         x, y, z = self.dk(a0, a1,a2)
-        print "ik         coords = {0}, {1}, {2}".format(x, y, z)
-             
+        print "direct kinematics coords = {0}, {1}, {2}".format(x, y, z)
+        
+        self.innermodel.getJoint(self.motors[0]).setAngle(a0)
+        self.innermodel.getJoint(self.motors[1]).setAngle(a1)
+        self.innermodel.getJoint(self.motors[2]).setAngle(a2)
+
+        
         x1, y1, z1 = self.getPosInnerModel()
-        print "innermodel coords = {0}, {1}, {2}".format(x1, y1, z1)
+        print "innermodel coords        = {0}, {1}, {2}".format(x1, y1, z1)
 
         print "diferencia = {0}, {1}, {2}".format(x-x1, y-y1, z-z1)     
         print "......................."
@@ -89,18 +103,14 @@ class SpecificWorker(GenericWorker):
 
         return x, y, z
         
-        
+    
     def getPosInnerModel(self):
-        coords = coord3D()     #inicializado a (0, 0, 0)
-        
-        #TODO es necesario hacer el update? con que parametros
-        #self.innermodel.updateTransformValues("head_rot_tilt_pose", 0, 0, 0, 1.3, 0, 0)
-        
-        #TODO cuales son los parametros correctos para transform()
-        #en c es transform(string base, string item, coord3D coordInItem,out coord3D coordInBase)
-        result = self.innermodelmanager_proxy.transform("arm1motor1T", "arm1TipT", coords)
-        coords = result[1]
-        return coords.x, coords.y, coords.z
+        # The API of python-innermodel is not exactly the same as the C++ version
+        z = librobocomp_qmat.QVec(3,0)
+        r = self.innermodel.transform("arm1motor1T", z, "arm1TipT")
+        #r.printvector("d")
+        return r[0], r[1], r[2]
+    
     @QtCore.Slot()
     def compute(self):
         # print 'SpecificWorker.compute...'
