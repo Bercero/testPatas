@@ -36,7 +36,7 @@ class SpecificWorker(GenericWorker):
     def __init__(self, proxy_map):
         super(SpecificWorker, self).__init__(proxy_map)
         self.timer.timeout.connect(self.compute)
-        self.Period = 5000
+        self.Period = 3000
         self.timer.start(self.Period)
 
     def setParams(self, params):
@@ -75,9 +75,11 @@ class SpecificWorker(GenericWorker):
     def pruebaPosiciones(self):
         goalPosList = [rand(-pi/2, pi/2) for x in range(3)]
         self.mover(goalPosList)
-        print "moviendo ..."
-        sleep(3)
-        print "calculando ..."
+
+        while True in [self.jointmotor_proxy.getMotorState(m).isMoving for m in self.motors]:
+            print "moviendo ..."
+                        
+
         a0 = self.jointmotor_proxy.getMotorState(self.motors[0]).pos
         a1 = self.jointmotor_proxy.getMotorState(self.motors[1]).pos
         a2 = self.jointmotor_proxy.getMotorState(self.motors[2]).pos
