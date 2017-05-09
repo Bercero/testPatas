@@ -42,37 +42,13 @@ class SpecificWorker(GenericWorker):
             self.l0= float(params['l0'])
             self.l1= float(params['l1'])
             self.l2= float(params['l2'])
-        
-            self.innermodel = self.InnerModel(params["InnerModelPath"])
+                   
         except:
             traceback.print_exc()
             print "Error reading config params"
             exit(1)
         return True
 
-    def leer(self):
-        mstateMap = self.jointmotor_proxy.getAllMotorState()
-        print mstateMap['arm5motor2'].vel
-
-    def pruebaVelocidad(self):
-        m = MotorGoalPosition()
-        m.name = 'arm5motor1'
-        m.position = -0.9
-        m.maxSpeed = 50.0
-        while True:
-            m.position = -m.position
-            self.jointmotor_proxy.setSyncPosition([m])
-            fin = False
-            while not fin:
-                mstateMcap = self.jointmotor_proxy.getAllMotorState()
-                print "velocidad"
-                print mstateMcap[m.name].vel
-                print 'posicion'
-                print mstateMcap[m.name].pos
-                print 'posicion objetivo'
-                print m.position
-            if m.position == mstateMcap[m.name].pos:
-                    fin = True
 
     def mover(self,  pos):
         goalList = []
@@ -89,23 +65,20 @@ class SpecificWorker(GenericWorker):
     def pruebaPosiciones(self):
         goalPosList = [rand(-pi/2, pi/2) for x in range(3)]
         self.mover(goalPosList)
-        print "................\nmoviendo ..."
+        print "moviendo ..."
         sleep(3)
     
         a0 = self.jointmotor_proxy.getMotorState(self.motors[0]).pos
         a1 = self.jointmotor_proxy.getMotorState(self.motors[1]).pos
         a2 = self.jointmotor_proxy.getMotorState(self.motors[2]).pos
         x, y, z = self.dk(a0, a1,a2)
-        print "x = {0}".format(x)
-        print "y = {0}".format(y)
-        print "z = {0}".format(z)
+        print "ik         coords = {0}, {1}, {2}".format(x, y, z)
+             
+        x1, y1, z1 = self.getPosInnerModel()
+        print "innermodel coords = {0}, {1}, {2}".format(x1, y1, z1)
+
+        print "diferencia = {0}, {1}, {2}".format(x-x1, y-y1, z-z1)     
         print "......................."
-        
-        #self.innermodel.updateTransformValues("head_rot_tilt_pose", 0, 0, 0, 1.3, 0, 0)
-        z = coord3D()
-        r = self.innermodel.transform("arm1motor1T", z, "arm1TipT")
-        r.printvector("d")
-        print r[0], r[1], r[2]
         sleep(2)
         
     
@@ -116,6 +89,16 @@ class SpecificWorker(GenericWorker):
 
         return x, y, z
         
+        
+    def getPosInnerModel(self):
+        z = coord3D()
+        #TODO cuales son los parametros correctos para transform()
+        #TODO es necesario hacer el update? con que parametros
+        #self.innermodel.updateTransformValues("head_rot_tilt_pose", 0, 0, 0, 1.3, 0, 0)
+        #transform(string base, string item, coord3D coordInItem,out coord3D coordInBase)
+        r = self.innermodelmanager_proxy.transform("arm1motor1T", "arm1TipT", z)
+        s=r[1]
+        return s.x, s.y, s.z
     @QtCore.Slot()
     def compute(self):
         # print 'SpecificWorker.compute...'
