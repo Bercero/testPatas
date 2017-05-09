@@ -115,6 +115,23 @@ if __name__ == '__main__':
 		print 'Cannot connect to IceStorm! ('+proxy+')'
 		sys.exit(-1)
 
+	# Remote object connection for InnerModelManager
+	try:
+		proxyString = ic.getProperties().getProperty('InnerModelManagerProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			innermodelmanager_proxy = InnerModelManagerPrx.checkedCast(basePrx)
+			mprx["InnerModelManagerProxy"] = innermodelmanager_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (InnerModelManager)', proxyString
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get InnerModelManagerProxy property.'
+		status = 1
+
+
 	# Remote object connection for JointMotor
 	try:
 		proxyString = ic.getProperties().getProperty('JointMotorProxy')

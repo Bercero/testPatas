@@ -1,5 +1,6 @@
 # Proxies for required interfaces
 JointMotorProxy = jointmotor:tcp -h localhost -p 20000
+InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
 
 
 
@@ -13,4 +14,14 @@ Ice.Trace.Protocol=0
 Ice.ACM.Client=10
 Ice.ACM.Server=10
 
+#leg number
+leg=1
+#leg segments length
+l0=52
+l1=66
+l2=125
+
+max_speed=2
+
+InnerModelPath=/home/cerbero/robocomp/files/innermodel/hexapod.xml
 

@@ -33,6 +33,9 @@ import RoboCompCommonBehavior
 preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robocomp/interfaces/"
 Ice.loadSlice(preStr+"JointMotor.ice")
 from RoboCompJointMotor import *
+preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robocomp/interfaces/"
+Ice.loadSlice(preStr+"InnerModelManager.ice")
+from RoboCompInnerModelManager import *
 
 
 
@@ -45,6 +48,7 @@ class GenericWorker(QtCore.QObject):
 		super(GenericWorker, self).__init__()
 
 
+		self.innermodelmanager_proxy = mprx["InnerModelManagerProxy"]
 		self.jointmotor_proxy = mprx["JointMotorProxy"]
 		
 		
