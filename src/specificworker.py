@@ -36,7 +36,7 @@ class SpecificWorker(GenericWorker):
     def __init__(self, proxy_map):
         super(SpecificWorker, self).__init__(proxy_map)
         self.timer.timeout.connect(self.compute)
-        self.Period = 3000
+        self.Period = 500
         self.timer.start(self.Period)
 
     def setParams(self, params):
@@ -75,9 +75,10 @@ class SpecificWorker(GenericWorker):
     def pruebaPosiciones(self):
         goalPosList = [rand(-pi/2, pi/2) for x in range(3)]
         self.mover(goalPosList)
-
-        while True in [self.jointmotor_proxy.getMotorState(m).isMoving for m in self.motors]:
-            print "moviendo ..."
+        print "moviendo ..."
+        sleep(5)
+        
+        #while True in [self.jointmotor_proxy.getMotorState(m).isMoving for m in self.motors]:
                         
 
         a0 = self.jointmotor_proxy.getMotorState(self.motors[0]).pos
@@ -89,7 +90,11 @@ class SpecificWorker(GenericWorker):
         self.innermodel.getJoint(self.motors[0]).setAngle(a0)
         self.innermodel.getJoint(self.motors[1]).setAngle(a1)
         self.innermodel.getJoint(self.motors[2]).setAngle(a2)
-
+        
+        for m in self.motors:
+            self.innermodel.updateTransformValues(m,0,0,0,a0*self.innermodel.getJoint(m).unitaryAxis()[0], a1 *self.innermodel.getJoint(m).unitaryAxis()[1],a2*self.innermodel.getJoint(m).unitaryAxis()[2])
+            break
+        
         
         x1, y1, z1 = self.getPosInnerModel()
         print "innermodel coords        = {0}, {1}, {2}".format(x1, y1, z1)
